@@ -200,36 +200,52 @@ app.view("student_view", async ({ ack, body, view, client }) => {
   }
 })
 
-app.command("/getgit", async ({ ack, body, say }) => {
+app.command("/getgit", async ({ ack, body, say, client }) => {
   await ack();
 
   // check if user is admin/owner
   // were going to use the command say with markdown blocks in it of the users git commit data
-  say("Here is the list of weekly commits")
-  const teamJSON = await db.get(body.team_id)
-  if (teamJSON) {
-    const teamRoster = JSON.parse(teamJSON); //Object
-    for (const userId in teamRoster) {
-      const username = teamRoster[userId]
-      const result = await fetchPastWeek(username);
-      let count = 0;
-      for (const contrib of result.contributions) {
-        count += contrib.count
-      }
-      say({
-        blocks: [
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `<@${userId}> commits this week: ${count}`
-            }
+  try {
+    const { user } = await client.users.info({
+        user: body.user_id
+    })
+    if (user.is_admin || user.is_owner) {
+      const teamJSON = await db.get(body.team_id)
+      if (teamJSON) {
+        say("Here is the list of weekly commits")
+        const teamRoster = JSON.parse(teamJSON); //Object
+        for (const userId in teamRoster) {
+          const username = teamRoster[userId]
+          const result = await fetchPastWeek(username);
+          let count = 0;
+          for (const contrib of result.contributions) {
+            count += contrib.count
           }
-        ],
-        text: 'Message cannot be displayed'
-      })
+          say({
+            blocks: [
+              {
+                type: 'section',
+                text: {
+                  type: 'mrkdwn',
+                  text: `<@${userId}> commits this week: ${count}`
+                }
+              }
+            ],
+            text: 'Message cannot be displayed'
+          })
+        }
+      } else {
+        say("There are no usernames added to this workspace")
+      }
+    } else {
+      say('Only an admin or owner has access to this command')
     }
+    
   }
+    catch (error) {
+      console.error(error)
+    }
+
 })
 
 const start = async () => {
