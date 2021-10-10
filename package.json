@@ -1,0 +1,19 @@
+{
+  "name": "gittrack",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@replit/database": "^2.0.1",
+    "@slack/bolt": "^3.7.0",
+    "axios": "^0.22.0",
+    "cheerio": "^1.0.0-rc.10",
+    "node-fetch": "^3.0.0"
+  }
+}
