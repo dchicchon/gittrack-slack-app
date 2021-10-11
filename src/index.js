@@ -1,12 +1,12 @@
 
 const { App } = require('@slack/bolt')
+const { config } = require('dotenv')
 const { fetchPastWeek } = require("./api/fetch.js")
 const Database = require("@replit/database")
-const BOT_TOKEN = process.env['BOT_TOKEN']
-const SIGNING_SECRET = process.env['SIGNING_SECRET']
+
+config()
 
 const db = new Database()
-
 const app = new App({
   token: BOT_TOKEN,
   signingSecret: SIGNING_SECRET,
