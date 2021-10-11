@@ -70,7 +70,7 @@ const deleteFromRoster = async (team, userId) => {
 
 
 // should only be able to run this command if you are the owner
-app.command("/roster", async ({say, ack, body, client, context }) => {
+app.command("/roster", async ({ say, ack, body, client, context }) => {
   // get all the users in the team and their github usernames
   await ack();
   // check user id in the client?
@@ -80,27 +80,27 @@ app.command("/roster", async ({say, ack, body, client, context }) => {
     })
     if (user.is_admin || user.is_owner) {
       const blocks = await getTeamRoster(body.team_id);
-          await client.views.open({
-            trigger_id: body.trigger_id,
-            view: {
-              type: "modal",
-              callback_id: "view_1",
-              title: {
-                type: "plain_text",
-                text: "Configure Student Roster",
-              },
-              blocks,
-            }
-        })
-    } 
+      await client.views.open({
+        trigger_id: body.trigger_id,
+        view: {
+          type: "modal",
+          callback_id: "view_1",
+          title: {
+            type: "plain_text",
+            text: "Configure Student Roster",
+          },
+          blocks,
+        }
+      })
+    }
     else {
       say("Only an admin or owner has access to this command")
     }
-  } catch(error) {
+  } catch (error) {
     console.error(error)
   }
 
-  
+
 })
 
 app.action('delete_user', async ({ ack, client, body, payload }) => {
@@ -207,7 +207,7 @@ app.command("/getgit", async ({ ack, body, say, client }) => {
   // were going to use the command say with markdown blocks in it of the users git commit data
   try {
     const { user } = await client.users.info({
-        user: body.user_id
+      user: body.user_id
     })
     if (user.is_admin || user.is_owner) {
       const teamJSON = await db.get(body.team_id)
@@ -240,11 +240,11 @@ app.command("/getgit", async ({ ack, body, say, client }) => {
     } else {
       say('Only an admin or owner has access to this command')
     }
-    
+
   }
-    catch (error) {
-      console.error(error)
-    }
+  catch (error) {
+    console.error(error)
+  }
 
 })
 
