@@ -68,7 +68,6 @@ const deleteFromRoster = async (team, userId) => {
   }
 }
 
-
 // should only be able to run this command if you are the owner
 app.command("/roster", async ({ say, ack, body, client, context }) => {
   // get all the users in the team and their github usernames
