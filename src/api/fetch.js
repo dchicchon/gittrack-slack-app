@@ -1,10 +1,18 @@
-const cheerio = require("cheerio");
-const axios = require('axios')
+import * as  d3 from 'd3'
+import cheerio from 'cheerio'
+import axios from 'axios'
+import fs from 'fs'
+import D3Node from 'd3-node'
+import sharp from 'sharp'
+
+// const fs = require('fs')
+// const D3Node = require('d3-node')
+// const sharp = require('sharp')
 
 async function fetchYears(username) {
   const response = await axios.get(`https://github.com/${username}`);
   const $ = cheerio.load(response.data);
-  
+
   return $(".js-year-link")
     .get()
     .map((a) => {
@@ -43,10 +51,9 @@ async function fetchDataForYear(url) {
   };
 }
 
-async function fetchPastWeek(username) {
+export async function fetchPastWeek(username) {
   const years = await fetchYears(username);
   const resp = await fetchDataForYear(years[0].href);
   return resp;
 }
 
-module.exports = { fetchPastWeek };

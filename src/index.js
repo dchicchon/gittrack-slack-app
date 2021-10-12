@@ -1,13 +1,13 @@
+import Bolt from '@slack/bolt'
+import dotenv from 'dotenv'
+import { fetchPastWeek } from './api/fetch.js'
+import Database from '@replit/database'
 
-const { App } = require('@slack/bolt')
-const { config } = require('dotenv')
-const { fetchPastWeek } = require("./api/fetch.js")
-const Database = require("@replit/database")
+const { parsed } = dotenv.config()
 
-config()
-
+const { BOT_TOKEN, SIGNING_SECRET } = parsed
 const db = new Database()
-const app = new App({
+const app = new Bolt.App({
   token: BOT_TOKEN,
   signingSecret: SIGNING_SECRET,
 })
