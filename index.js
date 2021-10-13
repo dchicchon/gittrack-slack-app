@@ -1,13 +1,14 @@
 
-const { App } = require('@slack/bolt')
-const { fetchPastWeek } = require("./api/fetch.js")
-const Database = require("@replit/database")
+import Bolt from '@slack/bolt'
+import {fetchPastWeek, makeGraph} from './api/fetch.js'
+import * as fs from 'fs'
+import Database from '@replit/database'
 const BOT_TOKEN = process.env['BOT_TOKEN']
 const SIGNING_SECRET = process.env['SIGNING_SECRET']
 
 const db = new Database()
 
-const app = new App({
+const app = new Bolt.App({
   token: BOT_TOKEN,
   signingSecret: SIGNING_SECRET,
 })
@@ -200,6 +201,18 @@ app.view("student_view", async ({ ack, body, view, client }) => {
   }
 })
 
+app.command('/testgraph', async ({ack, client, body}) => {
+  await ack();
+  await makeGraph();
+  // get the channel id
+  // add a comment on the image
+  // client.files.upload({
+  //   channels: body.channel_id,
+  //   file: fs.createReadableStream('sharp.png')
+  //   // initial_comment: ''
+  // })
+})
+
 app.command("/getgit", async ({ ack, body, say, client }) => {
   await ack();
 
@@ -247,6 +260,8 @@ app.command("/getgit", async ({ ack, body, say, client }) => {
   }
 
 })
+
+
 
 const start = async () => {
   await app.start(process.env.PORT || 3000)
