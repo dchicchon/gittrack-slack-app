@@ -2,6 +2,7 @@
 import Bolt from '@slack/bolt'
 import {fetchPastWeek, makeGraph} from './api/fetch.js'
 import * as fs from 'fs'
+import imgur from 'imgur'
 import Database from '@replit/database'
 const BOT_TOKEN = process.env['BOT_TOKEN']
 const SIGNING_SECRET = process.env['SIGNING_SECRET']
@@ -201,9 +202,58 @@ app.view("student_view", async ({ ack, body, view, client }) => {
   }
 })
 
-app.command('/testgraph', async ({ack, client, body}) => {
+app.command('/testgraph', async ({ack, client, body, say}) => {
   await ack();
-  await makeGraph();
+  // get student roster?
+  const teamJSON = await db.get(body.team_id)
+    // team created
+  if (teamJSON) {
+    const teamRoster = JSON.parse(teamJSON); //Object
+    let studentArray = []
+    let contributionArray = []
+    for (const userId in teamRoster) {
+      const username = teamRoster[userId]
+      const result = await fetchPastWeek(username);
+      // push to our arrays here
+      studentArray.push(userId)
+      contributionArray.push(result.contributions) 
+    }
+   const {students, link} =  await makeGraph(contributionArray, studentArray)
+   let blocks =[
+        {
+          type: 'image',
+          title: {
+            type: 'plain_text',
+            text: 'Weekly Contributions'
+          },
+          block_id: 'graph',
+          image_url: link,
+          alt_text: 'Weekly Contribution Graph'
+        }
+      ]
+    for (let student of students) {
+      let studentBlock = {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: student
+        }
+      }
+      blocks.push(studentBlock);
+    }
+
+   say({
+      blocks,
+      text: 'Message cannot be displayed'
+    })
+  
+  } else {
+    // no team here
+  }
+
+
+  // now upload the file to the channel id
+  
   // get the channel id
   // add a comment on the image
   // client.files.upload({
@@ -266,6 +316,7 @@ app.command("/getgit", async ({ ack, body, say, client }) => {
 const start = async () => {
   await app.start(process.env.PORT || 3000)
   console.log("Bolt app started");
+  console.log(process.cwd())
 }
 
 
