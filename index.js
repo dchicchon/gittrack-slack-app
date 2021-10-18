@@ -1,7 +1,6 @@
-
+ 
 import Bolt from '@slack/bolt'
 import {fetchPastWeek, makeGraph} from './api/fetch.js'
-import * as fs from 'fs'
 import imgur from 'imgur'
 import Database from '@replit/database'
 const BOT_TOKEN = process.env['BOT_TOKEN']
@@ -252,15 +251,6 @@ app.command('/testgraph', async ({ack, client, body, say}) => {
   }
 
 
-  // now upload the file to the channel id
-  
-  // get the channel id
-  // add a comment on the image
-  // client.files.upload({
-  //   channels: body.channel_id,
-  //   file: fs.createReadableStream('sharp.png')
-  //   // initial_comment: ''
-  // })
 })
 
 app.command("/getgit", async ({ ack, body, say, client }) => {
