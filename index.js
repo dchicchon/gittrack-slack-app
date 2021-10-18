@@ -1,6 +1,6 @@
- 
+
 import Bolt from '@slack/bolt'
-import {fetchPastWeek, makeGraph} from './api/fetch.js'
+import { fetchPastMonth, fetchPastWeek, makeGraph } from './api/fetch.js'
 import * as fs from 'fs'
 import imgur from 'imgur'
 import Database from '@replit/database'
@@ -202,11 +202,11 @@ app.view("student_view", async ({ ack, body, view, client }) => {
   }
 })
 
-app.command('/testgraph', async ({ack, client, body, say}) => {
+app.command('/weekGraph', async ({ ack, client, body, say }) => {
   await ack();
   // get student roster?
   const teamJSON = await db.get(body.team_id)
-    // team created
+  // team created
   if (teamJSON) {
     const teamRoster = JSON.parse(teamJSON); //Object
     let studentArray = []
@@ -216,21 +216,21 @@ app.command('/testgraph', async ({ack, client, body, say}) => {
       const result = await fetchPastWeek(username);
       // push to our arrays here
       studentArray.push(userId)
-      contributionArray.push(result.contributions) 
+      contributionArray.push(result.contributions)
     }
-   const {students, link} =  await makeGraph(contributionArray, studentArray)
-   let blocks =[
-        {
-          type: 'image',
-          title: {
-            type: 'plain_text',
-            text: 'Weekly Contributions'
-          },
-          block_id: 'graph',
-          image_url: link,
-          alt_text: 'Weekly Contribution Graph'
-        }
-      ]
+    const { students, link } = await makeGraph(contributionArray, studentArray)
+    let blocks = [
+      {
+        type: 'image',
+        title: {
+          type: 'plain_text',
+          text: 'Weekly Contributions'
+        },
+        block_id: 'graph',
+        image_url: link,
+        alt_text: 'Weekly Contribution Graph'
+      }
+    ]
     for (let student of students) {
       let studentBlock = {
         type: 'section',
@@ -242,25 +242,68 @@ app.command('/testgraph', async ({ack, client, body, say}) => {
       blocks.push(studentBlock);
     }
 
-   say({
+    say({
       blocks,
       text: 'Message cannot be displayed'
     })
-  
+
   } else {
     // no team here
+    say('No team available to graph')
   }
 
 
-  // now upload the file to the channel id
-  
-  // get the channel id
-  // add a comment on the image
-  // client.files.upload({
-  //   channels: body.channel_id,
-  //   file: fs.createReadableStream('sharp.png')
-  //   // initial_comment: ''
-  // })
+})
+
+app.command('/monthGraph', async ({ ack, client, body, say }) => {
+  await ack();
+  // get student roster?
+  const teamJSON = await db.get(body.team_id)
+  // team created
+  if (teamJSON) {
+    const teamRoster = JSON.parse(teamJSON); //Object
+    let studentArray = []
+    let contributionArray = []
+    for (const userId in teamRoster) {
+      const username = teamRoster[userId]
+      const result = await fetchPastMonth(username);
+      // push to our arrays here
+      studentArray.push(userId)
+      contributionArray.push(result.contributions)
+    }
+    const { students, link } = await makeGraph(contributionArray, studentArray)
+    let blocks = [
+      {
+        type: 'image',
+        title: {
+          type: 'plain_text',
+          text: 'Weekly Contributions'
+        },
+        block_id: 'graph',
+        image_url: link,
+        alt_text: 'Weekly Contribution Graph'
+      }
+    ]
+    for (let student of students) {
+      let studentBlock = {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: student
+        }
+      }
+      blocks.push(studentBlock);
+    }
+
+    say({
+      blocks,
+      text: 'Message cannot be displayed'
+    })
+
+  } else {
+    // no team here
+    say('No team available to graph')
+  }
 })
 
 app.command("/getgit", async ({ ack, body, say, client }) => {

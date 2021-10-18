@@ -20,7 +20,7 @@ async function fetchYears(username) {
     });
 }
 
-async function fetchDataForYear(url) {
+async function fetchDataForYear(url, type) {
   const response = await axios.get(`https://github.com${url}`);
   const $ = cheerio.load(response.data);
   const $days = $("svg.js-calendar-graph-svg rect.ContributionCalendar-day");
@@ -28,6 +28,8 @@ async function fetchDataForYear(url) {
   return {
     contributions: (() => {
       const arr = [];
+      const weekMS = 1000 * 60 * 60 * 24 * 7;
+      const monthMS = weekMS * 4;
       for (const day of $days) {
         const $day = $(day);
         const date = $day
@@ -36,12 +38,19 @@ async function fetchDataForYear(url) {
           .map((d) => parseInt(d, 10));
         const dateString = `${date[1]}-${date[2]}-${date[0]}`;
         const newDate = new Date(dateString);
-        const weekMS = 1000 * 60 * 60 * 24 * 7;
         const diff = todayDate.getTime() - newDate.getTime();
-        if (diff < weekMS && diff > 0) {
-          const count = parseInt($day.attr("data-count"), 10);
-          arr.push({ count, dateString });
+        if (type === 'week') {
+          if (diff < weekMS && diff > 0) {
+            const count = parseInt($day.attr("data-count"), 10);
+            arr.push({ count, dateString });
+          }
+        } else {
+          if (diff < monthMS && diff > 0) {
+            const count = parseInt($day.attr("data-count"), 10);
+            arr.push({ count, dateString });
+          }
         }
+
       }
       return arr;
     })(),
@@ -50,7 +59,13 @@ async function fetchDataForYear(url) {
 
 export async function fetchPastWeek(username) {
   const years = await fetchYears(username);
-  const resp = await fetchDataForYear(years[0].href);
+  const resp = await fetchDataForYear(years[0].href, 'week');
+  return resp;
+}
+
+export async function fetchPastMonth(username) {
+  const years = await fetchYears(username);
+  const resp = await fetchDataForYear(years[0].href, 'month');
   return resp;
 }
 
@@ -341,7 +356,7 @@ export async function makeGraph(data, students) {
 
   // console.log('Data Contributions')
   // console.log(data)
-  
+
 
   const options = {
     d3Module: d3,
@@ -451,10 +466,10 @@ export async function makeGraph(data, students) {
         "d",
         d3
           .line()
-          .x(function(d) {
+          .x(function (d) {
             return x(d.date);
           })
-          .y(function(d) {
+          .y(function (d) {
             return y(d.count);
           })
       );
@@ -462,7 +477,7 @@ export async function makeGraph(data, students) {
 
   fs.writeFileSync("out.svg", d3n.svgString());
   // lets write the return inside of our stuff
-  const buffer =  await sharp("out.svg").toBuffer()
+  const buffer = await sharp("out.svg").toBuffer()
   imgur.setClientId("b97bc4bf7d1aaef");
   const base64Image = buffer.toString("base64");
   const uploadResult = await imgur.uploadBase64(base64Image)
