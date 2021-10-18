@@ -202,7 +202,7 @@ app.view("student_view", async ({ ack, body, view, client }) => {
   }
 })
 
-app.command('/weekGraph', async ({ ack, client, body, say }) => {
+app.command('/week-graph', async ({ ack, client, body, say }) => {
   await ack();
   // get student roster?
   const teamJSON = await db.get(body.team_id)
@@ -255,7 +255,7 @@ app.command('/weekGraph', async ({ ack, client, body, say }) => {
 
 })
 
-app.command('/monthGraph', async ({ ack, client, body, say }) => {
+app.command('/month-graph', async ({ ack, client, body, say }) => {
   await ack();
   // get student roster?
   const teamJSON = await db.get(body.team_id)
