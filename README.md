@@ -18,6 +18,8 @@ GitTrack is an application that helps track the user commits in your slack works
 - /add-username - Allows a user to add their Github Username
 - /roster - Check the list of usernames and their corresponding slack display names for the workspace
 - /getgit - Get data for the weekly commits for the users in the workspace roster
+- /week-graph - Create a graph of the weeks contributions by your users
+- /month-graph - Create a graph of the months contributions by your users
 
 ## Acknowledgements
 - [Slack Application Tutorial for Replit](https://www.youtube.com/watch?v=QBRHcGGTRCY)
